@@ -1,0 +1,55 @@
+---
+title: "MP3"
+author: "Haiqa Mohamed and Ivana William"
+date: "4/9/2018"
+output: html_document
+---
+
+
+```{r}
+library(tidyverse)
+library(devtools)
+library(leaflet)
+library(sf)
+```
+```{r, warning = FALSE, message = FALSE}
+devtools::install_github("beanumber/macleish")
+```
+
+```{r}
+library(macleish)
+```
+```{r}
+names(macleish_layers)
+```
+```{r}
+library(sf)
+macleish_layers[["buildings"]]
+```
+```{r}
+lapply(macleish_layers, class)
+```
+```{r}
+macleish_layers[["buildings"]] %>%
+  plot()
+```
+
+
+```{r}
+vignette("macleish")
+```
+
+
+```{r}
+macleish_layers[["trails"]]
+```
+```{r}
+plot(macleish_layers[["trails"]])
+```
+
+
+
+
+
+
+
