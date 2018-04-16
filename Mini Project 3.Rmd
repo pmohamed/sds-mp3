@@ -1,0 +1,119 @@
+---
+title: "Mini Project 3"
+author: "Ivana William"
+date: "April 17, 2018"
+output: html_document
+code_folding: hide
+
+---
+
+```{r warning = FALSE,  message = FALSE}
+library(tidyverse)
+library(devtools)
+library(leaflet)
+library(sf)
+library(macleish)
+```
+
+```{r eval = FALSE, warning = FALSE,Vmessage = FALSE}
+library(sf)
+macleish_layers[["trails"]] %>%
+  st_length()
+```
+```{r warning = FALSE, message = FALSE}
+trails <- macleish_layers[["trails"]] %>%
+  mutate(computed_length = st_length(geometry))
+```
+```{r eval = FALSE, warning = FALSE, message = FALSE}
+macleish_layers[["boundary"]] %>%
+  st_area()
+```
+```{r eval = FALSE, warning = FALSE, message = FALSE}
+macleish_layers[["contours_30ft"]] %>%
+  st_area()
+```
+```{r eval = FALSE, warning = FALSE, message = FALSE}
+macleish_layers[["boundary"]] %>%
+  st_area()
+```
+```{r warning = FALSE, message = FALSE}
+contours <- macleish_layers[["contours_30ft"]] %>%
+  mutate(computed_length = st_length(geometry))
+```
+
+
+```{r warning = FALSE, message = FALSE}
+proj4_aea <- "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"
+```
+```{r warning = FALSE,  message = FALSE}
+boundaries_aea <- macleish_layers[["boundary"]] %>%
+  st_transform(proj4_aea) %>%
+  st_transform(4326)
+contours_aea <- macleish_layers[["contours_30ft"]] %>%
+  st_transform(proj4_aea) %>%
+  st_transform((4326))
+```
+
+
+```{r eval = FALSE, warning = FALSE, message = FALSE}
+boundaries_aea %>%
+  st_area() / 4046.8564224
+```
+```{r warning = FALSE, message = FALSE}
+a <- arrange(trails, computed_length) 
+```
+
+```{r warning = FALSE, message = FALSE}
+b <- arrange(contours, CONTOUR_FT)
+```
+
+```{r warning = FALSE, message = FALSE}
+head(a)
+
+head(b)
+```
+
+```{r warning = FALSE,  message = FALSE}
+streams_inside <- macleish_layers[["trails"]]
+```
+```{r warning = FALSE, message = FALSE}
+easy <- trails %>% 
+  filter(as.numeric(computed_length) < 188)
+```
+```{r warning = FALSE, message = FALSE}
+moderate <- trails %>%
+  filter(as.numeric(computed_length) > 188 & as.numeric(computed_length) < 832)
+```
+```{r warning = FALSE, message = FALSE}
+difficult <- trails %>% 
+  filter(as.numeric(computed_length) > 832)
+```
+```{r warning = FALSE, message = FALSE}
+easyb <- contours %>%
+  filter(as.numeric(computed_length) < 800)
+```
+```{r warning = FALSE,message = FALSE}
+moderateb <- contours %>%
+  filter(as.numeric(computed_length) > 800 & as.numeric(computed_length) <1500)
+```
+```{r warning = FALSE, message = FALSE}
+difficultb <- contours %>%
+  filter(as.numeric(computed_length) > 1500)
+```
+
+```{r  warning = FALSE,message = FALSE}
+library(leaflet)
+leaflet() %>%
+  addTiles() %>%
+  addPolylines(data = easy, color= "green", weight = 2) %>% 
+  addPolylines(data = moderate, color= "blue", weight = 2) %>% 
+  addPolylines(data = difficult, color = "red", weight = 2) %>%
+  addPolygons(data = easyb, color= "green", weight = 2) %>% 
+  addPolygons(data = moderateb, color= "blue", weight = 1) %>% 
+  addPolygons(data = difficultb, color = "red", weight = 1) 
+```
+
+
+
+
+
