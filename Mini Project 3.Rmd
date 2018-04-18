@@ -1,13 +1,17 @@
 ---
 title: "Mini Project 3"
-author: "Ivana William"
+author: "Ivana William and Haiqa Mohamed"
 date: "April 17, 2018"
 output: html_document
 code_folding: hide
-
 ---
 
+# **Biking has never looked this easy/moderate/hard** #
+
+##*This project will focus on classifying the bike trails present at the Macleish Field Station as easy, moderate and diffuclt according to the trail length and contour height*##
+
 ```{r warning = FALSE,  message = FALSE}
+##Loading packages 
 library(tidyverse)
 library(devtools)
 library(leaflet)
@@ -16,36 +20,39 @@ library(macleish)
 ```
 
 ```{r eval = FALSE, warning = FALSE,Vmessage = FALSE}
+#Computing the length of each trail using st_length( )
 library(sf)
 macleish_layers[["trails"]] %>%
   st_length()
 ```
 ```{r warning = FALSE, message = FALSE}
+#Computing the length of each trail and creating a dataset with it
 trails <- macleish_layers[["trails"]] %>%
   mutate(computed_length = st_length(geometry))
 ```
+
 ```{r eval = FALSE, warning = FALSE, message = FALSE}
-macleish_layers[["boundary"]] %>%
-  st_area()
-```
-```{r eval = FALSE, warning = FALSE, message = FALSE}
+#Finding the area of the contours in the fieldstation
 macleish_layers[["contours_30ft"]] %>%
   st_area()
 ```
 ```{r eval = FALSE, warning = FALSE, message = FALSE}
+#Finding the area of the fieldstation
 macleish_layers[["boundary"]] %>%
   st_area()
 ```
 ```{r warning = FALSE, message = FALSE}
+#Computing values within the contour data
 contours <- macleish_layers[["contours_30ft"]] %>%
   mutate(computed_length = st_length(geometry))
 ```
 
-
 ```{r warning = FALSE, message = FALSE}
+#Preparing data for transformation 
 proj4_aea <- "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"
 ```
 ```{r warning = FALSE,  message = FALSE}
+#Transforming the data into proj4_aea
 boundaries_aea <- macleish_layers[["boundary"]] %>%
   st_transform(proj4_aea) %>%
   st_transform(4326)
@@ -54,20 +61,23 @@ contours_aea <- macleish_layers[["contours_30ft"]] %>%
   st_transform((4326))
 ```
 
-
 ```{r eval = FALSE, warning = FALSE, message = FALSE}
+#Finding the area of the data in Proj4_aea
 boundaries_aea %>%
   st_area() / 4046.8564224
 ```
 ```{r warning = FALSE, message = FALSE}
+#Arranging the trail data according to trail lengtht
 a <- arrange(trails, computed_length) 
 ```
 
 ```{r warning = FALSE, message = FALSE}
+#Arranging contour data according to contour height
 b <- arrange(contours, CONTOUR_FT)
 ```
 
 ```{r warning = FALSE, message = FALSE}
+#Taking a look at the data computed so far 
 head(a)
 
 head(b)
@@ -77,31 +87,38 @@ head(b)
 streams_inside <- macleish_layers[["trails"]]
 ```
 ```{r warning = FALSE, message = FALSE}
+#Setting the criteria for the "easy" trail 
 easy <- trails %>% 
   filter(as.numeric(computed_length) < 188)
 ```
 ```{r warning = FALSE, message = FALSE}
+#Setting the criteria for the "moderate" trail 
 moderate <- trails %>%
   filter(as.numeric(computed_length) > 188 & as.numeric(computed_length) < 832)
 ```
 ```{r warning = FALSE, message = FALSE}
+#Setting the criteria for the "difficult" trail 
 difficult <- trails %>% 
   filter(as.numeric(computed_length) > 832)
 ```
 ```{r warning = FALSE, message = FALSE}
+#Setting the criteria for the "easy" contour 
 easyb <- contours %>%
   filter(as.numeric(computed_length) < 800)
 ```
 ```{r warning = FALSE,message = FALSE}
+#Setting the criteria for the "moderate" contour 
 moderateb <- contours %>%
   filter(as.numeric(computed_length) > 800 & as.numeric(computed_length) <1500)
 ```
 ```{r warning = FALSE, message = FALSE}
+#Setting the criteria for the "difficult" contour 
 difficultb <- contours %>%
   filter(as.numeric(computed_length) > 1500)
 ```
 
 ```{r  warning = FALSE,message = FALSE}
+#Plotting trail data according to length and contour data according to height
 library(leaflet)
 leaflet() %>%
   addTiles() %>%
@@ -113,6 +130,12 @@ leaflet() %>%
   addPolygons(data = difficultb, color = "red", weight = 1) 
 ```
 
+The Ada and Archibald Field station stretches across 240 Acres of forest and farmland. It is located in Whately, MA and serves as a rich resource for research, recreation and education. Transportation to and from locations is pivotal for any college student or faculty member. As students, we want to make sure we know which routes to take especially when we bike there. This is why we chose question 1 for our mini project. This allows us to analyze which routes are the best to take to and from Smith college to the Macleish Field Station. 
+The project focuses on letting readers know which trails are easy, which ones are moderate and which ones are most challenging. We used the ‘macleish’ package within r studio. From this package we used ‘trails’, ‘boundary’ and ‘contours_30ft’ from ‘macleish_layers’. We used the st_length function to compute the length of the lines. We used the st_area function on ‘trails’, ‘boundary’ and ‘contour_30ft’. There are 15 trails within the data set. We used the mutate function to estimate the ‘computed_length’ from data in the ‘trails’ dataset. Even though some trails appeared twice in the data frame, they had different computed lengths. This could be because while it could be one long trail it can also be completed as a separate (maybe shorter) trail on its own. We arranged it in ascending order (from shortest to the longest trail).We then filtered distances less than 188m for the easy trails. The trails that were between ‘188m’ and ‘832m’ we classified as the easy trails and the trails over 832m we classified as the ‘difficult’  trails and projected it onto our spatial map. ‘Easy’ trails are marked in green on the map. Moderate trails are marked as blue on the map and difficult trails are marked as red on the map. We applied the same understanding for contours as well. The moderate trails are Porcupine Trail, Vernal Pool Loop, Eastern Loop, Western Loop, entry trail. The longest (difficult) trails include: Western Loop, the Poplar Hill Road, Eastern Loop and the Snowmobile Trail. The easy (short) trails include Easy Out, Driveway, Western Loop and Poplar Hill Road. 
+For the contours we classified ‘easy’ as less than 800 feet. Moderate was between 800 feet and 1500 feet and ‘difficult’ was over 1500 feet. We used the same colors as we used for the trail lengths just so it would be easier on the eye of the reader. This would reduce confusion and make it easier to associate a color with a difficulty level (i.e. green is easy and red is difficult). This information is useful because we can  see that at higher elevations, it is harder for a biker to cycle making it a difficult trail. Whereas on trails with less elevation, it can be seen as easier trails for bikers as less effort is needed. 
+This information is extremely vital for students and faculty visiting the field station from Smith College as bikers will be able to choose trails on their fitness levels and preferences. The spatial map allows readers to visualize the trails they could take to the Macleish station and choose trail difficulty level based on their preferences on the day. 
+
+https://github.com/pmohamed/sds192-mp2.git
 
 
 
